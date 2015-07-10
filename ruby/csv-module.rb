@@ -12,6 +12,24 @@ module ActsAsCsv
 
 	module InstanceMethods
 
+		class CsvRow
+			attr :cells,:headers
+
+			def initialize(cells=[],headers=[])
+				@cells=cells
+				@headers=headers
+			end
+
+			def inspect
+				@cells.inspect
+			end
+
+			def method_missing(name,*args)
+				@cells[@headers.find_index name.to_s]
+			end
+
+		end
+
 		def read
 			@csv_contents=[]
 			filename=self.class.to_s.downcase+'.csv'
@@ -19,7 +37,8 @@ module ActsAsCsv
 			@headers=file.gets.chomp.split(',')
 
 			file.each do |row|
-				@csv_contents << row.chomp.split(',')
+				r=CsvRow.new(row.chomp.split(','),@headers)
+				@csv_contents << r
 			end
 		end
 
@@ -45,3 +64,5 @@ end
 r=RubyCsv.new
 
 r.each {|row| puts row.inspect}
+
+r.each {|row| puts row.name}
